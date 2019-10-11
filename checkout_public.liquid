@@ -450,7 +450,7 @@ ${billingAddresses[b].phone ? `Phone: ${billingAddresses[b].phone}` : ``}
       }
   }
 
-  /** Below event listener is responsible for calling a function which makes an ajax request to get the addresses **/
+  /** Below event listener is responsible for calling a function which makes an ajax request to get the addresses. **/
 
   window.addEventListener('load',function() { 
     if(allAddress.customerId && (ShopifyAnalytics.meta.page.path == "/checkout/contact_information" || ShopifyAnalytics.meta.page.path == "/checkout/payment")){
