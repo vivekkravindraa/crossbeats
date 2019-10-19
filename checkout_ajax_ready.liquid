@@ -1,0 +1,422 @@
+<script>
+  let allAddress = {};
+  
+  {% if customer.id %}
+  let customerId = {{ customer.id }};
+  {% else %}
+  let customerId;
+  {% endif %}
+  
+  /** Obtaining all the handles for the shipping form fields in "checkout/contact_information" step. **/
+  
+  let shippingFirstName = document.getElementById('checkout_shipping_address_first_name');
+  let shippingLastName = document.getElementById('checkout_shipping_address_last_name');
+  let shippingAddress1 = document.getElementById('checkout_shipping_address_address1');
+  let shippingAddress2 = document.getElementById('checkout_shipping_address_address2');
+  let shippingCity = document.getElementById('checkout_shipping_address_city');
+  let shippingCountry = document.getElementById('checkout_shipping_address_country');
+  let shippingZip = document.getElementById('checkout_shipping_address_zip');
+  let shippingPhone = document.getElementById('checkout_shipping_address_phone');
+  
+  /** Obtaining all the handles for the billing form fields in "checkout/payment" step. **/
+  
+  let billingFirstName = document.getElementById('checkout_billing_address_first_name');
+  let billingLastName = document.getElementById('checkout_billing_address_last_name');
+  let billingAddress1 = document.getElementById('checkout_billing_address_address1');
+  let billingAddress2 = document.getElementById('checkout_billing_address_address2');
+  let billingCity = document.getElementById('checkout_billing_address_city');
+  let billingCountry = document.getElementById('checkout_billing_address_country');
+  let billingZip = document.getElementById('checkout_billing_address_zip');
+  let billingPhone = document.getElementById('checkout_billing_address_phone');
+  
+  /** Obtaining the reference to the addresses with radio buttons. **/
+  
+  let radioButtons = document.getElementsByName('address');
+  
+  /** Obtaining the reference to the sameAsBilling radio selection in "checkout/payment" step. **/
+  
+  let sameAsBilling = document.getElementById('checkout_different_billing_address_false');
+  
+  /**
+  		Obtaining the reference to the section header to create a reference handle
+  		and to display the addresses in the "checkout/contact_information" step.
+  **/
+  
+  let shippingAddressHandle = document.getElementsByClassName('section__header');
+  for(let y = 0; y < shippingAddressHandle.length; y++) {
+    if(ShopifyAnalytics.meta.page.path == "/checkout/contact_information") {
+      shippingAddressHandle[1].setAttribute('id','ship');
+    }
+  }
+  let shipHandle = document.getElementById('ship');
+  
+  /**
+  		Obtaining the reference to the section header to create a reference handle
+  		and to display the addresses in the "checkout/payment" step.
+  **/
+  
+  let billingAddressHandle = document.getElementsByClassName('section__header');
+  for(let y = 0; y < billingAddressHandle.length; y++) {
+    if(ShopifyAnalytics.meta.page.path == "/checkout/payment") {
+      billingAddressHandle[2].setAttribute('id','bill');
+    }
+  }
+  let billHandle = document.getElementById('bill');
+  
+  /** Specific conditions for "/checkout/contact_information" & "/checkout/payment" step. **/
+  
+  if(customerId && ShopifyAnalytics.meta.page.path == "/checkout/contact_information") { }
+  if(customerId && ShopifyAnalytics.meta.page.path == "/checkout/payment") { }
+  
+  /** Below snippet is responsible for the unchecking of selected address. **/
+  
+  let unselectAddress = document.getElementsByClassName('selectAddress');
+  if(sameAsBilling) {
+    sameAsBilling.addEventListener('click', function() {
+      for(let c = 0; c < unselectAddress.length; c++) {
+        let uncheckArray = unselectAddress[c].children;
+        for(let d = 0; d < uncheckArray.length; d++) {
+          if(uncheckArray[d].checked) {
+            let uncheckElement = uncheckArray[d].parentNode;
+            uncheckArray[d].checked = false;
+            uncheckElement.style.border = '1px solid #ddd';
+            uncheckElement.style.backgroundColor = '#fff';
+          }
+        }
+      }
+    }, false);
+  }
+  
+  /**
+  		The below function getAddress() is called on selection of an address to fill the shipping and billing form fields
+  		in both "checkout/contact_information" step & "checkout/payment" step.
+  **/
+  
+  function getAddress() {
+    
+    for(let uh = 0; uh < radioButtons.length; uh++) {
+      let unhighlightChecked = radioButtons[uh].parentNode;
+      unhighlightChecked.style.border = '1px solid #ddd';
+      unhighlightChecked.style.backgroundColor = '#fff';
+    }
+    
+    for(let i = 0; i < radioButtons.length; i++) {
+      if(radioButtons[i].checked) {
+        
+        let formHandle = document.getElementsByClassName('section__content');
+      	formHandle[1].style.display = '';
+        
+        let highlightChecked = radioButtons[i].parentNode;
+        highlightChecked.style.border = '1px solid #ed3a33';
+        highlightChecked.style.backgroundColor = '#fdf3ef';
+        
+        /**
+        	If the step is "checkout/contact_information" then update the shipping form fields.
+            Else, if the step is "checkout/payment" then update the billing form fields.
+        **/
+        
+        if(ShopifyAnalytics.meta.page.path == "/checkout/contact_information") {
+          
+          shippingFirstName.value = JSON.parse(radioButtons[i].value).firstName;
+          let shippingFirstNameLabel = shippingFirstName.parentNode.parentNode;
+          shippingFirstNameLabel.setAttribute('class','field field--required field--half field--show-floating-label');
+          shippingLastName.value = JSON.parse(radioButtons[i].value).lastName;
+          let shippingLastNameLabel = shippingLastName.parentNode.parentNode;
+          shippingLastNameLabel.setAttribute('class','field field--required field--half field--show-floating-label');
+          shippingAddress1.value = JSON.parse(radioButtons[i].value).address1;
+          let shippingAddress1Label = shippingAddress1.parentNode.parentNode; 
+          shippingAddress1Label.setAttribute('class','field field--required field--show-floating-label');
+          shippingAddress2.value = JSON.parse(radioButtons[i].value).address2;
+          let shippingAddress2Label = shippingAddress2.parentNode.parentNode;
+          shippingAddress2Label.setAttribute('class','field field--optional field--show-floating-label');
+          shippingCity.value = JSON.parse(radioButtons[i].value).city;
+          let shippingCityLabel = shippingCity.parentNode.parentNode;
+          shippingCityLabel.setAttribute('class','field field--required field--show-floating-label');
+          shippingZip.value = JSON.parse(radioButtons[i].value).zip;
+          let shippingZipLabel = shippingZip.parentNode.parentNode;
+          shippingZipLabel.setAttribute('class','field field--required field--show-floating-label field--third');
+          shippingPhone.value = JSON.parse(radioButtons[i].value).phone;
+          let shippingPhoneLabel = shippingPhone.parentNode.parentNode;
+          shippingPhoneLabel.setAttribute('class','field field--required field--show-floating-label');
+          
+          let country = JSON.parse(radioButtons[i].value).country;          
+          for(let j = 0; j < shippingCountry.length; j++) {
+            if(shippingCountry[j].value == country) {
+              shippingCountry.value = shippingCountry[j].value;
+            }
+          }
+          let shippingState = document.getElementById('checkout_shipping_address_province');
+          let shippingStateValue = JSON.parse(radioButtons[i].value).provinceCode;
+          for(let k = 0; k < shippingState.length; k++) {
+            if(shippingState[k].value == shippingStateValue) {
+              shippingState.value = shippingState[k].value;
+            }
+          }
+          
+        } else if(ShopifyAnalytics.meta.page.path == "/checkout/payment") {
+          
+          let highlightChecked = radioButtons[i].parentNode;
+          highlightChecked.style.border = '1px solid #ed3a33';
+          highlightChecked.style.backgroundColor = '#fdf3ef';
+          
+          let billingRadio = document.getElementsByClassName('radio__input');
+          billingRadio[3].childNodes[1].checked = true;
+          let billing = document.querySelectorAll('#section--billing-address__different');
+          billing[0].setAttribute('class','radio-group__row content-box__row content-box__row--secondary');
+          
+          billingFirstName.value = JSON.parse(radioButtons[i].value).firstName;
+          let billingFirstNameLabel = billingFirstName.parentNode.parentNode;
+          billingFirstNameLabel.setAttribute('class','field field--required field--half field--show-floating-label');
+          billingLastName.value = JSON.parse(radioButtons[i].value).lastName;
+          let billingLastNameLabel = billingLastName.parentNode.parentNode;
+          billingLastNameLabel.setAttribute('class','field field--required field--half field--show-floating-label');
+          billingAddress1.value = JSON.parse(radioButtons[i].value).address1;
+          let billingAddress1Label = billingAddress1.parentNode.parentNode;
+          billingAddress1Label.setAttribute('class','field field--required field--show-floating-label');
+          billingAddress2.value = JSON.parse(radioButtons[i].value).address2;
+          let billingAddress2Label = billingAddress2.parentNode.parentNode;
+          billingAddress2Label.setAttribute('class','field field--optional field--show-floating-label');
+          billingCity.value = JSON.parse(radioButtons[i].value).city;
+          let bilingCityLabel = billingCity.parentNode.parentNode;
+          bilingCityLabel.setAttribute('class','field field--required field--show-floating-label');
+          billingZip.value = JSON.parse(radioButtons[i].value).zip;
+          let billingZipLabel = billingZip.parentNode.parentNode;
+          billingZipLabel.setAttribute('class','field field--required field--third field--show-floating-label');
+          billingPhone.value = JSON.parse(radioButtons[i].value).phone;
+          let billingPhoneLabel = billingPhone.parentNode.parentNode;
+          billingPhoneLabel.setAttribute('class','field field--required field--show-floating-label');
+          
+          let country = JSON.parse(radioButtons[i].value).country;
+          for(let m = 0; m < billingCountry.length; m++) {
+            if(billingCountry[m].value == country) {
+              billingCountry.value = billingCountry[m].value;
+            }
+          }
+          let billingState = document.getElementById('checkout_billing_address_province');
+          let billingStateValue = JSON.parse(radioButtons[i].value).provinceCode;
+          for(let n = 0; n < billingState.length; n++) {
+            if(billingState[n].value == billingStateValue) {
+              billingState.value = billingState[n].value;
+            }
+          }
+          
+          billingFirstName.disabled = false;
+          billingLastName.disabled = false;
+          billingAddress1.disabled = false;
+          billingAddress2.disabled = false;
+          billingCity.disabled = false;
+          billingCountry.disabled = false;
+          billingState.disabled = false;
+          billingZip.disabled = false;
+          billingPhone.disabled = false;
+          
+        }
+      }
+    }
+  }
+  
+  /**
+  		The below function getAddresses() is responsible for making an ajax call to fetch the details of the addresses
+        that the customer has previously generated with his successfully placed orders.  
+  **/
+  
+  function getAddresses() {
+    fetch(`https://0dbc3e97.ngrok.io/customers/${customerId}`)
+    .then(function(res) {
+      if(res.status == '200') {
+        return res.json();
+      } else {
+        let p = document.createElement('p');
+        p.setAttribute('id','notfound');
+        p.innerHTML = 'No Addresses Found!';
+        if(ShopifyAnalytics.meta.page.path == "/checkout/contact_information") {
+          shipHandle.appendChild(p);
+        } else if(ShopifyAnalytics.meta.page.path == "/checkout/payment") {
+          billHandle.appendChild(p); 
+        }
+      }
+    })
+    .then(function(data) {
+      allAddress = data;
+      let newShippingAddresses = [];
+      if(allAddress !== undefined) {
+        allAddress.shippingAddress.forEach((item) => newShippingAddresses.push(item.address));
+      }
+      let newBillingAddresses = [];
+      if(allAddress !== undefined) {
+        allAddress.billingAddress.forEach((item) => newBillingAddresses.push(item.address));
+      }
+      let shippingAddresses = newShippingAddresses.slice(-2, newShippingAddresses.length);
+      let billingAddresses = newBillingAddresses.slice(-2, newBillingAddresses.length);
+      if(ShopifyAnalytics.meta.page.path == "/checkout/contact_information") {
+        for(let a = 0; a < shippingAddresses.length; a++) {
+          let div = document.createElement('div');
+          div.setAttribute('class','selectAddress');
+          let obj = {
+            firstName: shippingAddresses[a].first_name,
+            lastName: shippingAddresses[a].last_name,
+            name: shippingAddresses[a].name,
+            address1: shippingAddresses[a].address1,
+            address2: shippingAddresses[a].address2,
+            city: shippingAddresses[a].city,
+            province: shippingAddresses[a].province,
+            provinceCode: shippingAddresses[a].province_code,
+            country: shippingAddresses[a].country,
+            countryCode: shippingAddresses[a].country_code,
+            zip: shippingAddresses[a].zip,
+            phone: shippingAddresses[a].phone
+          };
+          let input = document.createElement('input');
+          input.setAttribute('class','input-radio');
+          input.setAttribute('type','radio');
+          input.setAttribute('name','address');
+          input.setAttribute('onchange','getAddress()');
+          input.setAttribute('value',JSON.stringify(obj));
+          let div2 = document.createElement('div');
+          div2.setAttribute('class','previousAddress');
+          div2.innerHTML = `
+${shippingAddresses[a].first_name ? `${shippingAddresses[a].first_name}` : ``}
+${shippingAddresses[a].last_name ? `${shippingAddresses[a].last_name},` : ``}
+${shippingAddresses[a].address1 ? `${shippingAddresses[a].address1},` : ``}
+${shippingAddresses[a].address2 ? `${shippingAddresses[a].address2},` : ``}
+${shippingAddresses[a].city ? `${shippingAddresses[a].city},` : ``}
+${shippingAddresses[a].province ? `${shippingAddresses[a].province},` : ``}
+${shippingAddresses[a].country ? `${shippingAddresses[a].country}` : ``}
+${shippingAddresses[a].zip ? `- ${shippingAddresses[a].zip}.` : ``}
+${shippingAddresses[a].phone ? `Phone: ${shippingAddresses[a].phone}` : ``}
+`;
+          div.appendChild(input);
+          div.appendChild(div2);
+          shipHandle.appendChild(div);
+        }
+      } else if(ShopifyAnalytics.meta.page.path == "/checkout/payment") {
+        for(let b = 0; b < billingAddresses.length; b++) {
+          let div = document.createElement('div');
+          div.setAttribute('class','selectAddress');
+          let obj = {
+            firstName: billingAddresses[b].first_name,
+            lastName: billingAddresses[b].last_name,
+            name: billingAddresses[b].name,
+            address1: billingAddresses[b].address1,
+            address2: billingAddresses[b].address2,
+            city: billingAddresses[b].city,
+            province: billingAddresses[b].province,
+            provinceCode: billingAddresses[b].province_code,
+            country: billingAddresses[b].country,
+            countryCode: billingAddresses[b].country_code,
+            zip: billingAddresses[b].zip,
+            phone: billingAddresses[b].phone
+          };
+          let input = document.createElement('input');
+          input.setAttribute('class','input-radio');
+          input.setAttribute('type','radio');
+          input.setAttribute('name','address');
+          input.setAttribute('onchange','getAddress()');
+          input.setAttribute('value',JSON.stringify(obj));
+          let div2 = document.createElement('div');
+          div2.setAttribute('class','previousAddress');
+          div2.innerHTML = `
+${billingAddresses[b].first_name ? `${billingAddresses[b].first_name}` : ``}
+${billingAddresses[b].last_name ? `${billingAddresses[b].last_name},` : ``}
+${billingAddresses[b].address1 ? `${billingAddresses[b].address1},` : ``}
+${billingAddresses[b].address2 ? `${billingAddresses[b].address2},` : ``}
+${billingAddresses[b].city ? `${billingAddresses[b].city},` : ``}
+${billingAddresses[b].province ? `${billingAddresses[b].province},` : ``}
+${billingAddresses[b].country ? `${billingAddresses[b].country}` : ``}
+${billingAddresses[b].zip ? `- ${billingAddresses[b].zip}.` : ``}
+${billingAddresses[b].phone ? `Phone: ${billingAddresses[b].phone}` : ``}
+`;
+          div.appendChild(input);
+          div.appendChild(div2);
+          billHandle.appendChild(div);
+        }
+      }
+    })
+    .catch(function(e) {
+      console.log(e)
+    })
+  }
+  
+  /** Below event listener is responsible for calling a function which makes an ajax request to get the addresses. **/
+  
+  window.addEventListener('load',function() { 
+    if(customerId && (ShopifyAnalytics.meta.page.path == "/checkout/contact_information" || ShopifyAnalytics.meta.page.path == "/checkout/payment")){
+      getAddresses();
+    }
+  }, false);
+</script>
+
+<style>
+  @media only screen and (max-width: 600px){
+    .selectAddress{
+      width:88% !important;
+    }  
+  }
+  .selectAddress {
+    margin-right: 6px;
+    border: 1px solid #ddd;
+    padding: 12px;
+    height: auto;
+    margin-top: 8px;
+    background-color: #fff;
+    min-height: 90px;
+    display: inline-block!important;
+    width: 44%;
+    vertical-align: middle;
+  }
+  .selectAddress:last-child{
+    margin-right: 0px;
+    margin-left: 6px;
+  }
+  .main .input-radio, .main .input-radio:hover{
+    border-color: #ed3a33;
+  }
+  .input-radio:checked{
+    box-shadow: 0 0 0 10px #ed3a33 inset;
+  }
+  :focus{
+    outline: 0;
+  }
+  .section__content .content-box{
+    clear: both;
+  }
+  .section--shipping-address .section__content, #section--billing-address__different {
+    clear: both;
+    background: #fef5f1;
+    padding: 13px;
+    border: 2px dashed #ed3b34;
+  }
+  .field__input-wrapper .field__input {
+    border-radius: 0px
+  }
+  .selectAddress {
+    display: -webkit-inline-box
+  }
+  .previousAddress{
+    font-size: 10px;
+    display: inline-block;
+    vertical-align: top;
+    width: 85%;
+    margin-left: 15px;
+  }
+  .selectAddress input.input-radio {
+    display: inline-block;
+    vertical-align: middle;
+    width: 18px;
+  }
+  .section__header {
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  #notfound {
+    background-color: #fef5f1;
+    padding: 12px 12px 12px 12px;
+    border-radius: 4px 4px 4px 4px;
+    border: 1px solid #ed3b34;
+    margin-top: 4px;
+    text-align: center;
+  }
+  .step__footer {
+    margin-top: 8px;
+  }
+</style>
