@@ -160,7 +160,8 @@
           highlightChecked.style.backgroundColor = '#fdf3ef';
           
           let billingRadio = document.getElementsByClassName('radio__input');
-          billingRadio[3].childNodes[1].checked = true;
+          billingRadio[3].childNodes[1].checked = false;
+          billingRadio[4].childNodes[1].checked = true;
           let billing = document.querySelectorAll('#section--billing-address__different');
           billing[0].setAttribute('class','radio-group__row content-box__row content-box__row--secondary');
           
