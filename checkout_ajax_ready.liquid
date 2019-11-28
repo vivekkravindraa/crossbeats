@@ -62,6 +62,16 @@
     }
   }
   let billHandle = document.getElementById('bill');
+
+  /** Hide default select shipping address **/
+  if(customerId && ShopifyAnalytics.meta.page.path == "/checkout/contact_information"){
+    document.getElementsByClassName('field__input-wrapper field__input-wrapper--select')[0].parentNode.style.display = 'none';
+  }
+  
+  /** Hide default select billing address **/
+  if(customerId && ShopifyAnalytics.meta.page.path == "/checkout/payment") {
+    document.getElementsByClassName('field__input-wrapper field__input-wrapper--select')[0].parentNode.style.display = 'none';
+  }
   
   /** Specific conditions for "/checkout/contact_information" & "/checkout/payment" step. **/
   
